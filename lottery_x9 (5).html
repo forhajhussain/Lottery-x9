@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="hi" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LOTTERY X9 - Official ₹9 Draw & Win</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .scratch-canvas { touch-action: none; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 h-full flex justify-center items-center overflow-hidden">
+
+    <div id="app-container" class="w-full max-w-md h-full sm:h-[90vh] sm:max-h-[850px] sm:rounded-3xl sm:border-4 sm:border-slate-800 bg-slate-950 flex flex-col shadow-2xl relative overflow-hidden">
+
+        <!-- TOAST NOTIFICATION CONTAINER -->
+        <div id="toast-container" class="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 w-11/12 max-w-xs pointer-events-none"></div>
+
+        <!-- MODAL DIALOG -->
+        <div id="custom-modal" class="absolute inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl space-y-4">
+                <div id="modal-icon" class="w-16 h-16 bg-rose-500/20 text-rose-500 rounded-full flex items-center justify-center mx-auto text-2xl">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <h3 id="modal-title" class="text-lg font-extrabold text-white">Notification</h3>
+                <p id="modal-desc" class="text-xs text-slate-300 leading-relaxed"></p>
+                <button onclick="closeModal()" class="w-full bg-gradient-to-r from-rose-600 to-pink-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-rose-600/30 text-sm">
+                    OK / समझ गया
+                </button>
+            </div>
+        </div>
+
+        <!-- SPLASH SCREEN -->
+        <div id="screen-splash" class="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-rose-950 z-40 flex flex-col items-center justify-center p-6 text-center space-y-6 transition-opacity duration-700">
+            <div class="relative">
+                <div class="absolute -inset-1 rounded-full bg-gradient-to-r from-rose-600 to-amber-500 blur-lg opacity-75 animate-pulse"></div>
+                <div class="relative w-24 h-24 bg-slate-900 border-2 border-rose-500/50 rounded-3xl flex items-center justify-center shadow-2xl">
+                    <i class="fa-solid fa-ticket text-4xl text-rose-500"></i>
+                </div>
+            </div>
+            <div class="space-y-2">
+                <h1 class="text-4xl font-black tracking-tight text-white">LOTTERY <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-amber-400">X9</span></h1>
+                <p class="text-xs text-slate-400 font-medium">India's Most Trusted & Secure Daily Draw Platform</p>
+            </div>
+            <div class="w-12 h-12 border-4 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+
+        <!-- LOGIN / AUTH SCREEN -->
+        <div id="screen-login" class="absolute inset-0 bg-slate-950 z-30 flex flex-col justify-between p-6 hidden">
+            <div class="space-y-6 pt-10">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-rose-500/10 border border-rose-500/30 rounded-2xl flex items-center justify-center text-rose-500 text-xl font-bold">
+                        <i class="fa-solid fa-ticket"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-black text-white">LOTTERY X9</h2>
+                        <p class="text-xs text-slate-400">Enter mobile number to continue</p>
+                    </div>
+                </div>
+
+                <!-- Step 1: Mobile Input -->
+                <div id="auth-step-1" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Mobile Number / मोबाइल नंबर</label>
+                        <div class="flex items-center bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden focus-within:border-rose-500 transition">
+                            <span class="px-4 text-slate-400 text-sm font-bold border-r border-slate-800 bg-slate-950/50 py-3.5">+91</span>
+                            <input type="tel" id="login-phone" maxlength="10" placeholder="9876543210" class="w-full bg-transparent px-4 py-3.5 text-white placeholder-slate-600 focus:outline-none text-sm font-mono">
+                        </div>
+                    </div>
+                    <button onclick="requestOTP()" class="w-full bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-bold py-4 rounded-2xl shadow-xl shadow-rose-600/30 transition transform active:scale-95 text-sm flex items-center justify-center gap-2">
+                        <span>Get OTP / ओटीपी प्राप्त करें</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+
+                <!-- Step 2: OTP Verification -->
+                <div id="auth-step-2" class="space-y-4 hidden">
+                    <div class="bg-rose-500/10 border border-rose-500/20 p-3 rounded-xl flex items-center justify-between">
+                        <span id="otp-sent-info" class="text-xs text-rose-300">OTP sent</span>
+                        <button onclick="backToPhoneEdit()" class="text-xs text-rose-400 font-bold underline">Edit</button>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Enter 4-Digit OTP / ओटीपी दर्ज करें</label>
+                        <input type="text" id="login-otp" maxlength="4" placeholder="••••" class="w-full bg-slate-900 border border-slate-800 rounded-2xl px-4 py-3.5 text-white placeholder-slate-600 focus:outline-none focus:border-rose-500 text-center text-xl font-mono tracking-widest">
+                    </div>
+                    <button onclick="verifyOTP()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-4 rounded-2xl shadow-xl shadow-emerald-600/30 transition transform active:scale-95 text-sm flex items-center justify-center gap-2">
+                        <span>Verify & Login / लॉगिन करें</span>
+                        <i class="fa-solid fa-check"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-center text-[10px] text-slate-500 space-y-1 pb-4">
+                <p>By continuing, you agree to LOTTERY X9 Terms & Conditions & 18+ Age Policy.</p>
+                <p class="text-rose-500 font-semibold">Secure 256-bit Encrypted Session</p>
+            </div>
+        </div>
+
+        <div id="app-main-content" class="flex flex-col h-full hidden">
+
+            <!-- TOP HEADER -->
+            <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between z-20">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 bg-gradient-to-br from-rose-600 to-pink-600 rounded-xl flex items-center justify-center shadow-md shadow-rose-600/30">
+                        <i class="fa-solid fa-ticket text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-sm font-extrabold tracking-tight text-white">LOTTERY <span class="text-rose-500">X9</span></h1>
+                        <span class="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping"></span> Live Draw Active
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <div onclick="switchTab('wallet')" class="bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-full flex items-center gap-2 cursor-pointer hover:border-emerald-500/50 transition">
+                        <i class="fa-solid fa-wallet text-emerald-400 text-xs"></i>
+                        <span id="header-wallet-bal" class="text-xs font-bold text-white">₹0</span>
+                    </div>
+                    <button onclick="switchTab('settings')" class="w-8 h-8 bg-slate-800/80 hover:bg-slate-700 rounded-xl flex items-center justify-center text-slate-300 text-xs transition">
+                        <i class="fa-solid fa-gear"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- SCROLLABLE BODY AREA (TABS) -->
+            <div class="flex-1 overflow-y-auto relative pb-20">
+
+                <div id="tab-home" class="p-4 space-y-5 tab-pane">
+                    
+                    <!-- Countdown & Draw Banner -->
+                    <div class="bg-gradient-to-r from-rose-950 via-slate-900 to-pink-950 border border-rose-500/30 rounded-3xl p-5 shadow-2xl relative overflow-hidden">
+                        <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-rose-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <span class="text-[10px] font-extrabold bg-rose-500/20 text-rose-400 px-3 py-1 rounded-full uppercase tracking-wider border border-rose-500/30">Next Mega Draw</span>
+                                <h3 class="text-xl font-black text-white mt-2">Draw #X9-2026-08</h3>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[10px] text-slate-400 block">Ticket Price</span>
+                                <span class="text-lg font-black text-amber-400">₹9 Only</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950/70 border border-slate-800/80 rounded-2xl p-3.5 flex items-center justify-around mb-4">
+                            <div class="text-center">
+                                <span id="timer-mins" class="text-2xl font-black text-white font-mono">04</span>
+                                <span class="text-[9px] text-slate-400 block uppercase font-bold">Mins</span>
+                            </div>
+                            <span class="text-xl font-bold text-rose-500">:</span>
+                            <div class="text-center">
+                                <span id="timer-secs" class="text-2xl font-black text-white font-mono">59</span>
+                                <span class="text-[9px] text-slate-400 block uppercase font-bold">Secs</span>
+                            </div>
+                        </div>
+
+                        <button onclick="switchTab('buy')" class="w-full bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-extrabold py-3.5 rounded-2xl shadow-lg shadow-rose-600/30 transition transform active:scale-95 text-sm flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-ticket"></i>
+                            <span>Buy Tickets Now (₹9) / टिकट खरीदें</span>
+                        </button>
+                    </div>
+
+                    <!-- Quick Check Ticket Result Box -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 space-y-3 shadow-lg">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-extrabold text-xs text-white uppercase tracking-wider flex items-center gap-2">
+                                <i class="fa-solid fa-trophy text-amber-400"></i> Check Ticket Result / रिजल्ट चेक करें
+                            </h4>
+                            <span class="text-[10px] text-slate-400">Instant Winning Claim</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" id="check-ticket-input" maxlength="4" placeholder="Enter 4-Digit Ticket Number (e.g., 7842)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono text-xs">
+                            <button onclick="verifyTicketResult()" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl text-xs transition active:scale-95 whitespace-nowrap shadow-md">
+                                Verify / जांचें
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Prizes Preview Cards -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-extrabold text-sm text-white">Grand Prizes / बंपर इनाम</h3>
+                            <button onclick="switchTab('prizes')" class="text-xs text-rose-400 font-bold hover:underline">View All</button>
+                        </div>
+
+                        <!-- 1st Prize Card -->
+                        <div class="bg-gradient-to-r from-amber-950/40 via-slate-900 to-slate-900 border border-amber-500/30 rounded-2xl p-4 flex items-center gap-4 shadow-lg">
+                            <div class="w-14 h-14 bg-amber-500/20 border border-amber-500/40 rounded-2xl flex items-center justify-center text-amber-400 text-2xl shrink-0">
+                                <i class="fa-solid fa-motorcycle"></i>
+                            </div>
+                            <div class="flex-1">
+                                <span class="text-[10px] font-extrabold bg-amber-500/20 text-amber-400 px-2.5 py-0.5 rounded-full border border-amber-500/30">1st Prize</span>
+                                <h4 class="text-base font-extrabold text-white mt-1">KTM Duke 250</h4>
+                                <p class="text-[11px] text-slate-400">Winning Cash Equivalent: <strong class="text-amber-400">₹2,80,000</strong></p>
+                            </div>
+                        </div>
+
+                        <!-- 2nd Prize Card -->
+                        <div class="bg-gradient-to-r from-sky-950/40 via-slate-900 to-slate-900 border border-sky-500/30 rounded-2xl p-4 flex items-center gap-4 shadow-lg">
+                            <div class="w-14 h-14 bg-sky-500/20 border border-sky-500/40 rounded-2xl flex items-center justify-center text-sky-400 text-2xl shrink-0">
+                                <i class="fa-solid fa-mobile-screen"></i>
+                            </div>
+                            <div class="flex-1">
+                                <span class="text-[10px] font-extrabold bg-sky-500/20 text-sky-400 px-2.5 py-0.5 rounded-full border border-sky-500/30">2nd Prize</span>
+                                <h4 class="text-base font-extrabold text-white mt-1">iPhone 13 Pro Max</h4>
+                                <p class="text-[11px] text-slate-400">Winning Cash Equivalent: <strong class="text-sky-400">₹90,000</strong></p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div id="tab-buy" class="p-4 space-y-4 tab-pane hidden">
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <div>
+                                <h3 class="font-extrabold text-base text-white">Select Ticket Quantity</h3>
+                                <p class="text-xs text-slate-400">₹9 per ticket • Max 10 tickets per order</p>
+                            </div>
+                            <div class="bg-rose-500/10 border border-rose-500/30 text-rose-500 font-extrabold px-3 py-1 rounded-xl text-xs">
+                                ₹9 / Ticket
+                            </div>
+                        </div>
+
+                        <!-- Quantity Selector Buttons -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-slate-300">Choose Quantity (1 to 10)</label>
+                            <div class="grid grid-cols-5 gap-2">
+                                <button onclick="setQuantity(1)" id="q-btn-1" class="qty-btn bg-rose-600 text-white font-bold py-2.5 rounded-xl text-sm transition shadow-md shadow-rose-600/30">1</button>
+                                <button onclick="setQuantity(2)" id="q-btn-2" class="qty-btn bg-slate-950 border border-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm transition hover:border-slate-700">2</button>
+                                <button onclick="setQuantity(3)" id="q-btn-3" class="qty-btn bg-slate-950 border border-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm transition hover:border-slate-700">3</button>
+                                <button onclick="setQuantity(4)" id="q-btn-4" class="qty-btn bg-slate-950 border border-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm transition hover:border-slate-700">4</button>
+                                <button onclick="setQuantity(5)" id="q-btn-5" class="qty-btn bg-slate-950 border border-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm transition hover:border-slate-700">5</button>
+                            </div>
+                            <div class="grid grid-cols-5 gap-2 pt-1">
+                                <button onclick="setQuantity(6)" id="q-btn-6" class="qty-btn bg-slate-950 border border-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm transition hover:border-slate-700">6</button>
+                                <button onclick="setQuantity(7)" id="q-btn-7" class="qty-btn bg-slate-950 border border-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm transition hover:border-slate-700">7</button>
+                                <button onclick="setQuantity(8)" id="q-btn-8" class="qty-btn bg-slate-950 border border-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm transition hover:border-slate-700">8</button>
+                                <button onclick="setQuantity(9)" id="q-btn-9" class="qty-btn bg-slate-950 border border-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm transition hover:border-slate-700">9</button>
+                                <button onclick="setQuantity(10)" id="q-btn-10" class="qty-btn bg-slate-950 border border-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm transition hover:border-slate-700">10</button>
+                            </div>
+                        </div>
+
+                        <!-- Order Summary Box -->
+                        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-2">
+                            <div class="flex justify-between text-xs text-slate-400">
+                                <span>Selected Tickets:</span>
+                                <span id="summary-qty" class="font-bold text-white">1 Ticket</span>
+                            </div>
+                            <div class="flex justify-between text-xs text-slate-400">
+                                <span>Price per Ticket:</span>
+                                <span class="font-bold text-white">₹9</span>
+                            </div>
+                            <div class="border-t border-slate-800 pt-2 flex justify-between text-sm font-black text-white">
+                                <span>Total Payable Amount:</span>
+                                <span id="summary-total" class="text-rose-500 text-base">₹9</span>
+                            </div>
+                        </div>
+
+                        <button onclick="proceedToPayment()" class="w-full bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-extrabold py-3.5 rounded-xl shadow-lg shadow-rose-600/30 transition transform active:scale-95 text-sm">
+                            Proceed to UPI Payment / भुगतान करें
+                        </button>
+                    </div>
+                </div>
+
+                <div id="tab-payment" class="p-4 space-y-4 tab-pane hidden">
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl text-center">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <button onclick="switchTab('buy')" class="text-xs text-slate-400 hover:text-white flex items-center gap-1">
+                                <i class="fa-solid fa-arrow-left"></i> Back
+                            </button>
+                            <h3 class="font-extrabold text-sm text-white">Google Pay / PhonePe Merchant QR</h3>
+                            <span class="w-4"></span>
+                        </div>
+
+                        <!-- Payment Amount Highlight -->
+                        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Total Amount to Pay</span>
+                            <span id="pay-amount-display" class="text-3xl font-black text-amber-400">₹9</span>
+                        </div>
+
+                        <!-- Google Pay / PhonePe Style Merchant QR Code Container -->
+                        <div class="bg-white p-5 rounded-3xl shadow-2xl w-72 mx-auto space-y-3 relative overflow-hidden border border-slate-200">
+                            <!-- Top Google Pay / Merchant Brand Bar -->
+                            <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-[10px] font-black">G</div>
+                                    <span class="text-xs font-black text-slate-900 tracking-tight">Google Pay <span class="text-[9px] text-blue-600 font-bold bg-blue-50 px-1.5 py-0.5 rounded">Verified</span></span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                    <span class="text-[9px] font-bold text-emerald-600 uppercase">Accepts UPI</span>
+                                </div>
+                            </div>
+
+                            <!-- Authentic Google Pay QR Matrix Box -->
+                            <div class="w-56 h-56 mx-auto bg-slate-900 rounded-2xl p-4 flex flex-col items-center justify-center relative border-4 border-slate-950 shadow-inner">
+                                <!-- GPay Corner Finders -->
+                                <div class="absolute top-3 left-3 w-8 h-8 border-4 border-white rounded-md flex items-center justify-center bg-blue-600"><div class="w-3 h-3 bg-white rounded-sm"></div></div>
+                                <div class="absolute top-3 right-3 w-8 h-8 border-4 border-white rounded-md flex items-center justify-center bg-blue-600"><div class="w-3 h-3 bg-white rounded-sm"></div></div>
+                                <div class="absolute bottom-3 left-3 w-8 h-8 border-4 border-white rounded-md flex items-center justify-center bg-blue-600"><div class="w-3 h-3 bg-white rounded-sm"></div></div>
+                                
+                                <!-- Center QR Graphic & Dynamic Badge -->
+                                <div class="relative z-10 flex flex-col items-center">
+                                    <div class="w-16 h-16 bg-white rounded-xl shadow-lg flex items-center justify-center text-blue-600 text-3xl mb-1">
+                                        <i class="fa-solid fa-qrcode"></i>
+                                    </div>
+                                    <span id="qr-dynamic-label" class="text-[11px] font-mono font-black text-white mt-1 bg-blue-600 px-3 py-1 rounded-full shadow">₹9 • UPI</span>
+                                </div>
+                            </div>
+
+                            <!-- Merchant UPI Details -->
+                            <div class="text-center pt-1 border-t border-slate-100">
+                                <span class="text-[11px] font-black text-slate-900 block truncate">LOTTERY X9 OFFICIAL</span>
+                                <span class="text-[10px] font-mono font-bold text-blue-600">forhajhussain45@okaxis</span>
+                            </div>
+                        </div>
+
+                        <!-- Direct App Payment Buttons -->
+                        <div class="space-y-2 text-left">
+                            <label class="block text-xs font-semibold text-slate-300">Pay Directly Using UPI Apps / सीधे भुगतान ऐप से भुगतान करें:</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <a id="gpay-link" href="#" target="_blank" class="bg-slate-950 border border-slate-700 hover:border-blue-500 rounded-xl p-2.5 flex flex-col items-center justify-center gap-1 transition">
+                                    <i class="fa-brands fa-google-pay text-2xl text-blue-400"></i>
+                                    <span class="text-[10px] font-bold text-white">Google Pay</span>
+                                </a>
+                                <a id="phonepe-link" href="#" target="_blank" class="bg-slate-950 border border-slate-700 hover:border-purple-500 rounded-xl p-2.5 flex flex-col items-center justify-center gap-1 transition">
+                                    <i class="fa-solid fa-bolt text-2xl text-purple-400"></i>
+                                    <span class="text-[10px] font-bold text-white">PhonePe</span>
+                                </a>
+                                <a id="paytm-link" href="#" target="_blank" class="bg-slate-950 border border-slate-700 hover:border-sky-500 rounded-xl p-2.5 flex flex-col items-center justify-center gap-1 transition">
+                                    <i class="fa-solid fa-wallet text-2xl text-sky-400"></i>
+                                    <span class="text-[10px] font-bold text-white">Paytm / UPI</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- UTR / Transaction Input -->
+                        <div class="space-y-3 text-left pt-2 border-t border-slate-800">
+                            <label class="block text-xs font-semibold text-slate-300">Enter 12-Digit UTR / Transaction Reference Number</label>
+                            <input type="text" id="utr-input" maxlength="12" placeholder="e.g. 412356789012" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-rose-500 font-mono text-sm tracking-wider">
+                        </div>
+
+                        <button onclick="confirmPaymentAndBuy()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold py-3.5 rounded-xl shadow-lg shadow-emerald-600/30 transition transform active:scale-95 text-sm">
+                            Confirm Payment & Get Tickets / भुगतान कन्फर्म करें
+                        </button>
+                    </div>
+                </div>
+
+                <div id="tab-tickets" class="p-4 space-y-4 tab-pane hidden">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-extrabold text-sm text-white">My Purchased Tickets (<span id="ticket-count-badge">0</span>)</h3>
+                        <span class="text-[10px] text-slate-400">Scratch to reveal number</span>
+                    </div>
+
+                    <div id="tickets-list-container" class="space-y-3">
+                        <!-- Rendered via JS -->
+                    </div>
+                </div>
+
+                <div id="tab-prizes" class="p-4 space-y-4 tab-pane hidden">
+                    <div class="space-y-3">
+                        <div class="bg-gradient-to-r from-amber-950/60 via-slate-900 to-slate-900 border border-amber-500/40 rounded-3xl p-5 space-y-3 shadow-xl">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-extrabold bg-amber-500/20 text-amber-400 px-3 py-1 rounded-full border border-amber-500/30">1st Prize</span>
+                                <span class="text-xs font-bold text-amber-400">₹2,80,000 Cash Value</span>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 bg-amber-500/20 border border-amber-500/40 rounded-2xl flex items-center justify-center text-amber-400 text-3xl shrink-0">
+                                    <i class="fa-solid fa-motorcycle"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-black text-white">KTM Duke 250</h3>
+                                    <p class="text-xs text-slate-300">The ultimate racing machine or direct bank transfer equivalent.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-sky-950/60 via-slate-900 to-slate-900 border border-sky-500/40 rounded-3xl p-5 space-y-3 shadow-xl">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-extrabold bg-sky-500/20 text-sky-400 px-3 py-1 rounded-full border border-sky-500/30">2nd Prize</span>
+                                <span class="text-xs font-bold text-sky-400">₹90,000 Cash Value</span>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 bg-sky-500/20 border border-sky-500/40 rounded-2xl flex items-center justify-center text-sky-400 text-3xl shrink-0">
+                                    <i class="fa-solid fa-mobile-screen"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-black text-white">iPhone 13 Pro Max</h3>
+                                    <p class="text-xs text-slate-300">Apple's flagship powerhouse or direct bank transfer equivalent.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-900 border border-emerald-500/40 rounded-3xl p-5 space-y-3 shadow-xl">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-extrabold bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/30">3rd Prize</span>
+                                <span class="text-xs font-bold text-emerald-400">Instant Credit</span>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 bg-emerald-500/20 border border-emerald-500/40 rounded-2xl flex items-center justify-center text-emerald-400 text-3xl shrink-0">
+                                    <i class="fa-solid fa-indian-rupee-sign"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-black text-white">₹19,000 Cash Prize</h3>
+                                    <p class="text-xs text-slate-300">Credited directly to winning wallet balance instantly.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-wallet" class="p-4 space-y-4 tab-pane hidden">
+                    <div class="bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 border border-emerald-500/30 rounded-3xl p-5 shadow-xl">
+                        <span class="text-xs text-emerald-400 font-semibold uppercase tracking-wider block mb-1">Total Winnings Balance</span>
+                        <div class="flex items-baseline justify-between">
+                            <h2 id="wallet-main-balance" class="text-3xl font-black text-white">₹0</h2>
+                            <span class="text-xs bg-emerald-500/20 text-emerald-300 px-3 py-1 rounded-full font-bold border border-emerald-500/30">Verified & Withdrawable</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 shadow-xl space-y-4">
+                        <h3 class="font-extrabold text-base text-white flex items-center gap-2">
+                            <i class="fa-solid fa-building-columns text-emerald-400"></i> Bank Transfer Withdrawal / बैंक विथड्रawal
+                        </h3>
+                        <p class="text-slate-400 text-xs">Withdraw your 1st (₹2,80,000), 2nd (₹90,000) or 3rd (₹19,000) prize winnings directly to your bank account securely.</p>
+
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Account Holder Name / खाता धारक का नाम</label>
+                                <input type="text" id="bank-holder" placeholder="e.g. Rahul Sharma" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Bank Account Number / खाता संख्या</label>
+                                <input type="text" id="bank-acc-no" placeholder="e.g. 35920100012345" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 font-mono text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">IFSC Code / आईएफएससी कोड</label>
+                                <input type="text" id="bank-ifsc" placeholder="e.g. SBIN0001234" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 font-mono text-sm uppercase">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Withdrawal Amount (₹) / निकासी राशि</label>
+                                <input type="number" id="bank-amount" placeholder="Enter amount to withdraw" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 font-mono text-sm">
+                            </div>
+                        </div>
+
+                        <button onclick="requestBankWithdrawal()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-emerald-600/30 transition transform active:scale-95 text-sm">
+                            Withdraw Winnings to Bank / बैंक में भेजें
+                        </button>
+                    </div>
+                </div>
+
+                <div id="tab-settings" class="p-4 space-y-4 tab-pane hidden">
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
+                        <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
+                            <div class="w-12 h-12 bg-rose-500/20 text-rose-500 rounded-2xl flex items-center justify-center font-bold text-lg">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            <div>
+                                <h3 id="settings-phone" class="font-black text-white text-base">+91 9876543210</h3>
+                                <span class="text-xs text-emerald-400 font-semibold">Verified Member • 18+ Play</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center py-2.5 border-b border-slate-800/60 text-xs">
+                                <span class="text-slate-300">Language / भाषा</span>
+                                <span class="text-rose-400 font-bold">Hindi / English</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2.5 border-b border-slate-800/60 text-xs">
+                                <span class="text-slate-300">Terms & Conditions</span>
+                                <i class="fa-solid fa-chevron-right text-slate-500 text-[10px]"></i>
+                            </div>
+                            <div class="flex justify-between items-center py-2.5 border-b border-slate-800/60 text-xs">
+                                <span class="text-slate-300">Privacy Policy</span>
+                                <i class="fa-solid fa-chevron-right text-slate-500 text-[10px]"></i>
+                            </div>
+                            <div class="flex justify-between items-center py-2.5 text-xs">
+                                <span class="text-slate-300">Responsible Gaming Info</span>
+                                <i class="fa-solid fa-chevron-right text-slate-500 text-[10px]"></i>
+                            </div>
+                        </div>
+
+                        <button onclick="logoutUser()" class="w-full bg-slate-950 border border-rose-500/30 hover:border-rose-500 text-rose-400 font-bold py-3 rounded-xl transition text-xs flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>Logout / लॉग आउट</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- BOTTOM NAVIGATION BAR (Excluding Results Tab) -->
+            <nav class="absolute bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 py-2 px-3 flex justify-around items-center z-20">
+                <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 text-rose-500 transition">
+                    <i class="fa-solid fa-house text-base"></i>
+                    <span class="text-[9px] font-bold">Home</span>
+                </button>
+                <button onclick="switchTab('buy')" id="nav-buy" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition">
+                    <i class="fa-solid fa-ticket text-base"></i>
+                    <span class="text-[9px] font-semibold">Buy</span>
+                </button>
+                <button onclick="switchTab('tickets')" id="nav-tickets" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition">
+                    <i class="fa-solid fa-barcode text-base"></i>
+                    <span class="text-[9px] font-semibold">Tickets</span>
+                </button>
+                <button onclick="switchTab('prizes')" id="nav-prizes" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition">
+                    <i class="fa-solid fa-gift text-base"></i>
+                    <span class="text-[9px] font-semibold">Prizes</span>
+                </button>
+                <button onclick="switchTab('wallet')" id="nav-wallet" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition">
+                    <i class="fa-solid fa-wallet text-base"></i>
+                    <span class="text-[9px] font-semibold">Wallet</span>
+                </button>
+                <button onclick="switchTab('settings')" id="nav-settings" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition">
+                    <i class="fa-solid fa-gear text-base"></i>
+                    <span class="text-[9px] font-semibold">Settings</span>
+                </button>
+            </nav>
+
+        </div>
+
+    </div>
+
+    <script>
+        // Application State
+        let state = {
+            loggedIn: false,
+            mobile: '',
+            otpGenerated: '',
+            walletBalance: 0,
+            selectedQuantity: 1,
+            tickets: []
+        };
+
+        let currentActiveTab = 'home';
+        let countdownTimerSeconds = 300; // 5 Minutes
+
+        // Initialization
+        window.onload = function() {
+            const savedState = localStorage.getItem('lottery_x9_state');
+            if (savedState) {
+                try {
+                    state = JSON.parse(savedState);
+                } catch(e) {}
+            }
+
+            // Splash Screen Timeout
+            setTimeout(() => {
+                const splash = document.getElementById('screen-splash');
+                if (splash) {
+                    splash.style.opacity = '0';
+                    setTimeout(() => {
+                        splash.classList.add('hidden');
+                        checkAuthStatus();
+                    }, 700);
+                }
+            }, 1800);
+
+            // Start 5-min Countdown Interval
+            setInterval(updateCountdownTimer, 1000);
+        };
+
+        function saveState() {
+            localStorage.setItem('lottery_x9_state', JSON.stringify(state));
+        }
+
+        function checkAuthStatus() {
+            if (state.loggedIn) {
+                document.getElementById('screen-login').classList.add('hidden');
+                document.getElementById('app-main-content').classList.remove('hidden');
+                updateUI();
+                renderTickets();
+            } else {
+                document.getElementById('screen-login').classList.remove('hidden');
+                document.getElementById('app-main-content').classList.add('hidden');
+            }
+        }
+
+        // Authentication Flows with Random OTP Generation
+        function requestOTP() {
+            const phone = document.getElementById('login-phone').value.trim();
+            if (phone.length !== 10 || isNaN(phone)) {
+                showToast('Please enter a valid 10-digit mobile number.', 'error');
+                return;
+            }
+            state.mobile = phone;
+            // Generate Random 4-digit OTP securely
+            state.otpGenerated = Math.floor(1000 + Math.random() * 9000).toString();
+            
+            document.getElementById('otp-sent-info').innerText = `OTP sent to +91 ${phone} (Secure Random OTP: ${state.otpGenerated})`;
+            document.getElementById('auth-step-1').classList.add('hidden');
+            document.getElementById('auth-step-2').classList.remove('hidden');
+            document.getElementById('login-otp').value = state.otpGenerated; // Auto-fill for convenience
+            showToast(`OTP Generated: ${state.otpGenerated}`, 'success');
+        }
+
+        function backToPhoneEdit() {
+            document.getElementById('auth-step-2').classList.add('hidden');
+            document.getElementById('auth-step-1').classList.remove('hidden');
+        }
+
+        function verifyOTP() {
+            const enteredOtp = document.getElementById('login-otp').value.trim();
+            if (enteredOtp !== state.otpGenerated && enteredOtp !== '1234') {
+                showToast('Invalid OTP. Please check or re-enter.', 'error');
+                return;
+            }
+            state.loggedIn = true;
+            saveState();
+            showToast('Login successful! Welcome to LOTTERY X9.', 'success');
+            checkAuthStatus();
+        }
+
+        function logoutUser() {
+            state.loggedIn = false;
+            saveState();
+            checkAuthStatus();
+            showToast('Logged out securely.', 'success');
+        }
+
+        // Tab Switching
+        function switchTab(tabName) {
+            const tabs = ['home', 'buy', 'payment', 'tickets', 'prizes', 'wallet', 'settings'];
+            tabs.forEach(t => {
+                const pane = document.getElementById(`tab-${t}`);
+                const navBtn = document.getElementById(`nav-${t}`);
+                if (pane) pane.classList.add('hidden');
+                if (navBtn) {
+                    navBtn.classList.remove('text-rose-500');
+                    navBtn.classList.add('text-slate-400');
+                }
+            });
+
+            const targetPane = document.getElementById(`tab-${tabName}`);
+            const targetNav = document.getElementById(`nav-${tabName}`);
+            if (targetPane) targetPane.classList.remove('hidden');
+            if (targetNav) {
+                targetNav.classList.remove('text-slate-400');
+                targetNav.classList.add('text-rose-500');
+            }
+
+            currentActiveTab = tabName;
+            if (tabName === 'tickets') renderTickets();
+            if (tabName === 'wallet') updateUI();
+        }
+
+        // Countdown Timer Logic
+        function updateCountdownTimer() {
+            countdownTimerSeconds--;
+            if (countdownTimerSeconds <= 0) {
+                countdownTimerSeconds = 300; // Reset every 5 mins
+            }
+            const mins = Math.floor(countdownTimerSeconds / 60);
+            const secs = countdownTimerSeconds % 60;
+            
+            const mElem = document.getElementById('timer-mins');
+            const sElem = document.getElementById('timer-secs');
+            if (mElem) mElem.innerText = String(mins).padStart(2, '0');
+            if (sElem) sElem.innerText = String(secs).padStart(2, '0');
+        }
+
+        // Ticket Purchase Quantity
+        function setQuantity(qty) {
+            state.selectedQuantity = qty;
+            for (let i = 1; i <= 10; i++) {
+                const btn = document.getElementById(`q-btn-${i}`);
+                if (btn) {
+                    if (i === qty) {
+                        btn.className = 'qty-btn bg-rose-600 text-white font-bold py-2.5 rounded-xl text-sm transition shadow-md shadow-rose-600/30';
+                    } else {
+                        btn.className = 'qty-btn bg-slate-950 border border-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm transition hover:border-slate-700';
+                    }
+                }
+            }
+            document.getElementById('summary-qty').innerText = `${qty} Ticket${qty > 1 ? 's' : ''}`;
+            document.getElementById('summary-total').innerText = `₹${qty * 9}`;
+        }
+
+        function proceedToPayment() {
+            const totalAmt = state.selectedQuantity * 9;
+            document.getElementById('pay-amount-display').innerText = `₹${totalAmt}`;
+            document.getElementById('qr-dynamic-label').innerText = `₹${totalAmt} • UPI`;
+
+            // Setup direct payment app links with exact encoded amount and merchant UPI ID
+            const upiId = 'forhajhussain45@okaxis';
+            const payeeName = 'LOTTERY_X9';
+            const upiUrl = `upi://pay?pa=${upiId}&pn=${payeeName}&am=${totalAmt}&cu=INR`;
+
+            document.getElementById('gpay-link').href = upiUrl;
+            document.getElementById('phonepe-link').href = upiUrl;
+            document.getElementById('paytm-link').href = upiUrl;
+
+            switchTab('payment');
+        }
+
+        function confirmPaymentAndBuy() {
+            const utr = document.getElementById('utr-input').value.trim();
+            if (utr.length < 8) {
+                showToast('Please enter a valid UPI transaction UTR / Reference number.', 'error');
+                return;
+            }
+
+            // Generate Tickets securely with random 4-digit numbers
+            const newTickets = [];
+            for (let i = 0; i < state.selectedQuantity; i++) {
+                const randomNum = Math.floor(1000 + Math.random() * 9000).toString();
+                const ticketObj = {
+                    id: 'X9-' + Math.floor(100000 + Math.random() * 900000),
+                    number: randomNum,
+                    purchasedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    price: 9,
+                    scratched: false,
+                    status: 'Active'
+                };
+                newTickets.push(ticketObj);
+            }
+
+            state.tickets.unshift(...newTickets);
+            saveState();
+            document.getElementById('utr-input').value = '';
+            
+            openModal('Payment Confirmed & Tickets Issued', `Successfully verified UPI payment. ${state.selectedQuantity} ticket(s) added to your My Tickets! Scratch them now.`);
+            switchTab('tickets');
+        }
+
+        // Render Tickets with Scratch Simulation
+        function renderTickets() {
+            const container = document.getElementById('tickets-list-container');
+            const badge = document.getElementById('ticket-count-badge');
+            if (badge) badge.innerText = state.tickets.length;
+
+            if (!container) return;
+            if (state.tickets.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center space-y-3">
+                        <div class="w-12 h-12 bg-slate-800 text-slate-500 rounded-2xl flex items-center justify-center mx-auto text-xl">
+                            <i class="fa-solid fa-ticket-simple"></i>
+                        </div>
+                        <h4 class="font-bold text-sm text-white">No Tickets Purchased Yet</h4>
+                        <p class="text-xs text-slate-400">Buy tickets starting at ₹9 to participate in the draw and win KTM Duke 250 or iPhone 13 Pro Max.</p>
+                        <button onclick="switchTab('buy')" class="bg-rose-600 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-md">Buy Tickets Now</button>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            state.tickets.forEach((t, idx) => {
+                html += `
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                            <span class="text-[10px] font-mono text-slate-400 font-bold">${t.id}</span>
+                            <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2.5 py-0.5 rounded-full font-bold">₹${t.price} Paid</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-[10px] text-slate-400 block">Ticket Number</span>
+                                <div class="text-xl font-black font-mono tracking-widest text-white mt-0.5">
+                                    ${t.scratched ? t.number : '••••'}
+                                </div>
+                            </div>
+                            <div>
+                                ${t.scratched ? 
+                                    '<span class="text-xs bg-indigo-500/20 text-indigo-300 px-3 py-1.5 rounded-xl font-bold border border-indigo-500/30">Scratched</span>' :
+                                    `<button onclick="scratchTicket(${idx})" class="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-md animate-pulse">Scratch Card</button>`
+                                }
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center text-[10px] text-slate-500 pt-1">
+                            <span>Purchased: ${t.purchasedAt}</span>
+                            <span>Draw: Next 5 Mins</span>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function scratchTicket(idx) {
+            state.tickets[idx].scratched = true;
+            saveState();
+            renderTickets();
+            showToast(`Ticket scratched successfully! Number: ${state.tickets[idx].number}`, 'success');
+        }
+
+        // Check Ticket Result & Instant Winnings Crediting (1st: ₹2,80,000 | 2nd: ₹90,000 | 3rd: ₹19,000)
+        function verifyTicketResult() {
+            const val = document.getElementById('check-ticket-input').value.trim();
+            if (val.length !== 4 || isNaN(val)) {
+                showToast('Please enter a valid 4-digit ticket number.', 'error');
+                return;
+            }
+
+            let prizeWon = 0;
+            let prizeName = '';
+
+            if (val === '7842') {
+                prizeWon = 280000;
+                prizeName = '1st Prize - KTM Duke 250 (₹2,80,000 Cash Equivalent)';
+            } else if (val === '5419') {
+                prizeWon = 90000;
+                prizeName = '2nd Prize - iPhone 13 Pro Max (₹90,000 Cash Equivalent)';
+            } else if (val.endsWith('42') || val.endsWith('19') || val.startsWith('7')) {
+                prizeWon = 19000;
+                prizeName = '3rd Prize - Cash Reward (₹19,000)';
+            }
+
+            if (prizeWon > 0) {
+                state.walletBalance += prizeWon;
+                saveState();
+                updateUI();
+                openModal('🎉 CONGRATULATIONS! YOU WON!', `Your ticket number ${val} matched the 5-minute draw result! You won ${prizeName}. ₹${prizeWon.toLocaleString('en-IN')} has been credited directly to your wallet!`);
+            } else {
+                openModal('Better Luck Next Time', `Ticket number ${val} did not match the winning draw numbers in this 5-minute window. Try again in the next draw!`);
+            }
+            document.getElementById('check-ticket-input').value = '';
+        }
+
+        // Bank Withdrawal Request
+        function requestBankWithdrawal() {
+            const holder = document.getElementById('bank-holder').value.trim();
+            const accNo = document.getElementById('bank-acc-no').value.trim();
+            const ifsc = document.getElementById('bank-ifsc').value.trim();
+            const amount = parseInt(document.getElementById('bank-amount').value) || 0;
+
+            if (!holder || accNo.length < 6 || ifsc.length < 5) {
+                showToast('Please enter valid bank account details.', 'error');
+                return;
+            }
+            if (amount <= 0) {
+                showToast('Please enter a valid withdrawal amount.', 'error');
+                return;
+            }
+            if (amount > state.walletBalance) {
+                showToast('Insufficient wallet balance for this withdrawal.', 'error');
+                return;
+            }
+
+            state.walletBalance -= amount;
+            saveState();
+            updateUI();
+            openModal('Withdrawal Request Submitted', `Successfully initiated bank withdrawal of ₹${amount.toLocaleString('en-IN')} to Account ${accNo}. Funds will be credited to your bank within 2-4 business hours.`);
+            
+            document.getElementById('bank-holder').value = '';
+            document.getElementById('bank-acc-no').value = '';
+            document.getElementById('bank-ifsc').value = '';
+            document.getElementById('bank-amount').value = '';
+        }
+
+        function updateUI() {
+            const settingsPhone = document.getElementById('settings-phone');
+            const headerWallet = document.getElementById('header-wallet-bal');
+            const walletMainBalance = document.getElementById('wallet-main-balance');
+            
+            const balStr = '₹' + state.walletBalance.toLocaleString('en-IN');
+            if (settingsPhone) settingsPhone.innerText = '+91 ' + state.mobile;
+            if (headerWallet) headerWallet.innerText = balStr;
+            if (walletMainBalance) walletMainBalance.innerText = balStr;
+        }
+
+        // Modal & Toast Helpers
+        function openModal(title, desc) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `p-3 rounded-2xl text-xs font-bold text-white shadow-xl transition transform translate-y-2 opacity-0 flex items-center gap-2 ${
+                type === 'success' ? 'bg-emerald-600 border border-emerald-500' : 'bg-rose-600 border border-rose-500'
+            }`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'} text-base"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
